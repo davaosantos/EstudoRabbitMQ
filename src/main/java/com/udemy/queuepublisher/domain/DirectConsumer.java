@@ -1,9 +1,6 @@
 package com.udemy.queuepublisher.domain;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DeliverCallback;
+import com.rabbitmq.client.*;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -14,6 +11,14 @@ public class DirectConsumer {
         ConnectionFactory connectionFactory = new ConnectionFactory();
         Connection connection = connectionFactory.newConnection();
         Channel channel = connection.createChannel();
+
+//        DeliverCallback deliverCallback2 = new DeliverCallback() {
+//            @Override
+//            public void handle(String s, Delivery delivery) throws IOException {
+//                String message = new String( delivery.getBody());
+//                System.out.println("Message received = " + message);
+//            }
+//        };
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String( delivery.getBody());
