@@ -14,11 +14,13 @@ public class DirectPublisher {
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
 
-        String message = "This is mobile";
+        String messageMOB = "This is mobile";
+        String messageTV = "This is tv";
+        String messageAC = "This is AC";
 
-//        channel.basicPublish("Direct-Exchange", "mobile", null, message.getBytes());
-        channel.basicPublish("Direct-Exchange", "tv", null, message.getBytes());
-        channel.basicPublish("Direct-Exchange", "ac", null, message.getBytes());
+        channel.basicPublish("Direct-Exchange", "mobile", null, messageMOB.getBytes());
+        channel.basicPublish("Direct-Exchange", "tv", null, messageTV.getBytes());
+        channel.basicPublish("Direct-Exchange", "ac", null, messageAC.getBytes());
         channel.close();
         connection.close();
     }
