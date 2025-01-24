@@ -2,6 +2,8 @@ package com.udemy.queuepublisher.controller;
 
 
 import com.udemy.queuepublisher.domain.Person;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,20 +11,45 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
 @RestController
 @RequestMapping("/api/v1")
 public class TestController {
 
     @Autowired
     RabbitTemplate rabbitTemplate;
+//
+//    @GetMapping(value = "/test/{name}")
+//    public String testPI(@PathVariable("name") String name){
+//        Person p = new Person(1L, name);
+//        rabbitTemplate.convertAndSend("Mobile", p);
+//        rabbitTemplate.convertAndSend("Direct-Exchange", "mobile", p);
+//        rabbitTemplate.convertAndSend("Fanout-Exchange", "", p);
+//        rabbitTemplate.convertAndSend("Topic-Exchange", "tv.mobile.ac", p);
+//        return "Success";
+//    }
 
-    @GetMapping(value = "/test/{name}")
-    public String testPI(@PathVariable("name") String name){
+    @GetMapping("/test/{name}")
+    public String testAPI(@PathVariable("name") String name) throws IOException {
         Person p = new Person(1L, name);
-        rabbitTemplate.convertAndSend("Mobile", p);
-        rabbitTemplate.convertAndSend("Direct-Exchange", "mobile", p);
-        rabbitTemplate.convertAndSend("Fanout-Exchange", "", p);
-        rabbitTemplate.convertAndSend("Topic-Exchange", "tv.mobile.ac", p);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(bos);
+        oos.writeObject(p);
+        oos.flush();
+        oos.close();
+
+        byte[] byteMessage = bos.toByteArray();
+        bos.close();
+
+        Message message = MessageBuilder.withBody(byteMessage)
+                        .setHeader("item1", "mobile")
+                        .setHeader("item2", "television").build();
+
+        rabbitTemplate.send("Headers-Exchange", "", message);
         return "Success";
     }
+
 }
